@@ -40,7 +40,7 @@ interface Properties {
   carries_vaccine: boolean | null;
   appointment_types: AppointmentTypes | null;
   provider_brand_id: number;
-  provider_brand_name: Name;
+  provider_brand_name: string;
   provider_location_id: string;
   appointments_available: boolean | null;
   appointment_vaccine_types: AppointmentVaccineTypes | null;
@@ -90,17 +90,6 @@ enum Provider {
   Walmart = "walmart",
 }
 
-enum Name {
-  CVS = "CVS",
-  CommunityWalgreens = "Community (Walgreens)",
-  HealthMart = "Health Mart",
-  HyVee = "Hy-Vee",
-  SamSClub = "Sam's Club",
-  ThriftyWhite = "Thrifty White",
-  Walgreens = "Walgreens",
-  Walmart = "Walmart",
-}
-
 enum Code {
   Mn = "MN",
 }
@@ -133,7 +122,7 @@ interface ProviderBrand {
   id: number;
   key: Provider;
   url: string;
-  name: Name;
+  name: string;
   status: string;
   provider_id: Provider;
   location_count: number;

@@ -43,49 +43,11 @@ function filterLocations(response: AppointmentsResponse) {
 
 /** Send me an alert that there are vaccines available */
 function sendAlert(locations: VaccineLocation[]) {
-  GmailApp.sendEmail(
-    EMAIL_ADDRESS,
-    "Nearby Vaccines Spotted",
-    `Found ${locations.length} location${addS(locations)}:\n${locations
-      .map(locationToString)
-      .join("\n")}`,
-    { htmlBody: locationsToHtml(locations) }
-  );
-}
+  // Find the thread that we've already sent...
+  const thread = GmailApp.getThreadById(THREAD_ID);
 
-function locationToString(location: VaccineLocation) {
-  return `\t• ${location.properties.provider_brand_name} ${
-    location.properties.name
-  } - ${location.properties.city}, MN ${
-    location.properties.postal_code
-  } (${Math.round(location.distance)} mi)`;
-}
-
-function locationsToHtml(locations: VaccineLocation[]) {
-  return `
-  <div>
-    <h3>Found ${locations.length} location${addS(locations)}</h3>
-    <ul>
-      ${locations.map(
-        (location) => `
-      <li>
-        <b><a href="${location.properties.url}">${
-          location.properties.provider_brand_name
-        } ${location.properties.name}</a></b>
-        - ${location.properties.city}, MN ${
-          location.properties.postal_code
-        } (${Math.round(location.distance)} mi)
-      </li>
-      `
-      )}
-    </ul>
-    See more details on <a href="https://www.vaccinespotter.org/MN/?zip=55406&radius=${RADIUS}">Vaccine Spotter</a>.
-  </div>
-  `;
-}
-
-function addS(arr: any[]) {
-  if (arr.length === 1) return "";
-
-  return "s";
+  // ...and reply to it. (This keeps us from spamming the inbox)
+  thread.replyAll(EmailPlainBodyTemplate(locations), {
+    htmlBody: EmailHTMLBodyTemplate(locations),
+  });
 }

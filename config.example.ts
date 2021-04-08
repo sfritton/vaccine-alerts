@@ -4,5 +4,8 @@
 /** The distance in miles to search from the center. */
 // const RADIUS = 25;
 
+/** The email thread to reply to */
+// const THREAD_ID = "xxxxxxxxxxxxxxxx";
+
 /** The email address to send alerts to */
 // const EMAIL_ADDRESS = "I_want_vaccines@gmail.com";
