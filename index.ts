@@ -1,8 +1,12 @@
-/** The main function to be executed periodically. */
-async function main() {
+function main() {
+  RECIPIENTS.forEach(findVaccinesForRecipient);
+}
+
+/** Search for vaccines matching a person's criteria and send them an alert if they exist.*/
+async function findVaccinesForRecipient(recipient: Recipient) {
   const response = await getAppointments();
 
-  const availableLocations = filterLocations(response);
+  const availableLocations = filterLocations(response, recipient);
 
   // Do nothing if no vaccines were found
   if (availableLocations.length < 1) {
@@ -11,7 +15,7 @@ async function main() {
   }
 
   // We found some! Send an email alert
-  sendAlert(availableLocations);
+  sendAlert(availableLocations, recipient);
 }
 
 /** Fetch a list of pharmacies from https://github.com/GUI/covid-vaccine-spotter */
@@ -25,29 +29,43 @@ async function getAppointments() {
 }
 
 /** Returns a list of nearby vaccines. */
-function filterLocations(response: AppointmentsResponse) {
+function filterLocations(response: AppointmentsResponse, recipient: Recipient) {
   return response.features
     .reduce<VaccineLocation[]>((validLocations, location) => {
       // No appointments available, skip this location
       if (!location.properties.appointments_available) return validLocations;
 
-      const distance = getDistance(location.geometry.coordinates, CENTER);
+      const distance = getDistance(
+        location.geometry.coordinates,
+        recipient.coordinates
+      );
 
       // Too far away, skip this location
-      if (distance > RADIUS) return validLocations;
+      if (distance > recipient.radius) return validLocations;
 
       return [...validLocations, { ...location, distance }];
     }, [])
     .sort((a, b) => a.distance - b.distance);
 }
 
-/** Send me an alert that there are vaccines available */
-function sendAlert(locations: VaccineLocation[]) {
-  // Find the thread that we've already sent...
-  const thread = GmailApp.getThreadById(THREAD_ID);
+/** Send an alert that there are vaccines available */
+function sendAlert(locations: VaccineLocation[], recipient: Recipient) {
+  const plainBody = EmailPlainBodyTemplate(locations);
+  const htmlBody = EmailHTMLBodyTemplate(locations, recipient);
+  const threads = GmailApp.search(recipient.emailAddress);
 
-  // ...and reply to it. (This keeps us from spamming the inbox)
-  thread.replyAll(EmailPlainBodyTemplate(locations), {
-    htmlBody: EmailHTMLBodyTemplate(locations),
-  });
+  if (threads.length < 1) {
+    // We haven't sent them an alert yet, start a new thread
+    GmailApp.sendEmail(
+      recipient.emailAddress,
+      "Nearby Vaccines Spotted",
+      plainBody,
+      { htmlBody }
+    );
+
+    return;
+  }
+
+  // Reply to the existing thread. (This keeps us from spamming the inbox)
+  threads[0].replyAll(plainBody, { htmlBody });
 }

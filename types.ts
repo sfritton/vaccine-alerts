@@ -4,6 +4,17 @@ interface VaccineLocation extends Feature {
   distance: number;
 }
 
+interface Recipient {
+  /** The email address to send alerts to. */
+  emailAddress: string;
+  /** The distance in miles they're willing to travel. */
+  radius: number;
+  /** The longitude and latitude coordinates to center the search at. */
+  coordinates: Coordinates;
+  /** Their zip code. */
+  zipCode: number;
+}
+
 interface AppointmentsResponse {
   type: string;
   features: Feature[];

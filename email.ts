@@ -1,4 +1,7 @@
-function EmailHTMLBodyTemplate(locations: VaccineLocation[]) {
+function EmailHTMLBodyTemplate(
+  locations: VaccineLocation[],
+  recipient: Recipient
+) {
   return `
   <div>
     <h3>Appointments available at ${locations.length} location${addS(
@@ -7,7 +10,9 @@ function EmailHTMLBodyTemplate(locations: VaccineLocation[]) {
     <ul>
       ${locations.map(LocationListItem).join("")}
     </ul>
-    See more details on <a href="https://www.vaccinespotter.org/MN/?zip=55406&radius=${RADIUS}">Vaccine Spotter</a>.
+    See more details on <a href="https://www.vaccinespotter.org/MN/?zip=${
+      recipient.zipCode
+    }&radius=${recipient.radius}">Vaccine Spotter</a>.
   </div>
   `;
 }
