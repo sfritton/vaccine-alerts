@@ -10,6 +10,8 @@ function EmailHTMLBodyTemplate(
     <ul>
       ${locations.map(LocationListItem).join("")}
     </ul>
+    Appointments fill up quickly, so even if this tool reports one,
+    it may be gone by the time you try to sign up.
     See more details on <a href="https://www.vaccinespotter.org/MN/?zip=${
       recipient.zipCode
     }&radius=${recipient.radius}">Vaccine Spotter</a>.
